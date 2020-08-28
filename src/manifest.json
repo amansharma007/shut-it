@@ -6,6 +6,7 @@
   "default_locale": "en",
   "permissions": [
     "activeTab",
+    "tabs",
     "storage",
     "<all_urls>",
     "*://*/*"
@@ -37,6 +38,7 @@
   },
   "options_ui": {
     "page": "options.html",
-    "browser_style": true
+    "browser_style": true,
+    "open_in_tab": true
   }
 }

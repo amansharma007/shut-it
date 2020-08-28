@@ -102,7 +102,6 @@ export default {
     chrome.storage.sync.get(["options"], result => {
       if (result.options) {
         this.$set(this.options, "presets", result.options.presets);
-        console.log(JSON.stringify(this.options));
       }
     });
     this.addEmptyURLField();
@@ -115,9 +114,7 @@ export default {
   methods: {
     handlePresetSelect: function() {
       let self = this;
-      chrome.storage.sync.set({ options: { presets: self.options.presets } }, () => {
-        console.log("Value is set to " + JSON.stringify(this.options.presets));
-      });
+      chrome.storage.sync.set({ options: { presets: self.options.presets } });
     },
     addEmptyURLField: function() {
       this.options.blockedWebsites.push("");
