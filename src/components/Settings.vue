@@ -71,7 +71,9 @@ export default {
   data: function() {
     return {
       dialogFormVisible: false,
-      blockedWebsites: [],
+      blockedWebsites: [
+        "https://www.facebook.com/"
+      ],
       newSelectorsString: "",
       newPreset: {
         name: "",

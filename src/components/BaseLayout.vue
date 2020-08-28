@@ -19,8 +19,18 @@
 export default {
   data: function() {
     return {
-      mode: "Off"
+      mode: "off"
     };
+  },
+  created() {
+    this.runScript()
+  },
+  methods: {
+    runScript: function() {
+      chrome.tabs.executeScript({
+        code: 'document.body.style.backgroundColor="orange"'
+      });
+    }
   }
 };
 </script>
