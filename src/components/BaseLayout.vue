@@ -2,7 +2,6 @@
   <el-container>
     <el-main class="p-0">
       <h1>SHUT IT!</h1>
-      {{userMode}}
       <el-radio-group
         class="mb-medium"
         @change="handleModeChange()"
