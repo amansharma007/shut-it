@@ -1,19 +1,15 @@
 <template>
-  <hello-world />
+  <settings />
 </template>
 
 <script>
-import HelloWorld from '@/components/HelloWorld.vue'
+import Settings from '@/components/Settings.vue'
 
 export default {
   name: 'App',
-  components: { HelloWorld }
+  components: { Settings }
 }
 </script>
 
 <style>
-html {
-  width: 400px;
-  height: 400px;
-}
 </style>
