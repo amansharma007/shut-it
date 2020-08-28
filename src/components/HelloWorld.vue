@@ -1,6 +1,8 @@
 <template>
   <div>
     <p>{{ defaultText }}</p>
+    Mah man
+    wait a sec
   </div>
 </template>
 
