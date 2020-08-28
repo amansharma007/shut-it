@@ -1,7 +1,8 @@
 <template>
   <el-container>
-    <el-main>
+    <el-main class="p-0">
       <h1>SHUT IT!</h1>
+      {{userMode}}
       <el-radio-group
         class="mb-medium"
         @change="handleModeChange()"
@@ -12,10 +13,10 @@
         <el-radio-button label="cautious">Cautious</el-radio-button>
         <el-radio-button label="off">Off</el-radio-button>
       </el-radio-group>
-      <el-tabs type="card" :stretch="true">
+      <!-- <el-tabs type="card" :stretch="true">
         <el-tab-pane label="Dashboard">Dashboard</el-tab-pane>
         <el-tab-pane label="Help">Help</el-tab-pane>
-      </el-tabs>
+      </el-tabs>-->
     </el-main>
   </el-container>
 </template>
@@ -24,7 +25,7 @@
 export default {
   data: function() {
     return {
-      userMode: "off",
+      userMode: "",
       options: {
         presets: [],
         blockedWebsites: []
@@ -40,9 +41,19 @@ export default {
         result.options.blockedWebsites
       );
     });
+    chrome.storage.sync.get(["userMode"], result => {
+      if (!result.userMode) {
+        result.userMode = "off";
+      }
+      this.userMode = result.userMode;
+    });
+    this.handleModeChange();
   },
   methods: {
     handleModeChange: function() {
+      let self = this;
+      chrome.storage.sync.set({ userMode: self.userMode });
+
       switch (this.userMode) {
         case "off":
           // Reset everything
@@ -62,8 +73,20 @@ export default {
       }
     },
     reset: function() {
-      chrome.tabs.executeScript({
-        code: 'document.getElementById("contents").style.cssText=""'
+      let domain = "";
+      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+        domain = new URL(tabs[0].url).hostname;
+        this.options.presets.map(elem => {
+          if (elem.url.includes(domain) && elem.selected) {
+            elem.selectors.map(selector => {
+              chrome.tabs.executeScript({
+                code: `document.querySelectorAll("${selector}").forEach(elem => {
+                  elem.style.cssText=""
+                })`
+              });
+            });
+          }
+        });
       });
     },
     hideWebsiteSections: function() {
@@ -71,8 +94,11 @@ export default {
       chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
         domain = new URL(tabs[0].url).hostname;
         this.options.presets.map(elem => {
-          if (elem.url.includes(domain) && elem.selected) {
-            console.log(domain)
+          if (
+            (elem.url.includes(domain) || domain.includes(elem.url)) &&
+            elem.selected
+          ) {
+            console.log(elem);
             elem.selectors.map(selector => {
               this.hidingScript(selector);
             });
@@ -81,9 +107,13 @@ export default {
       });
     },
     hidingScript(selector) {
-      chrome.tabs.executeScript({
-        code: `document.querySelector("${selector}").style.cssText="display: none !important;"`
-      });
+      if (selector) {
+        chrome.tabs.executeScript({
+          code: `document.querySelectorAll("${selector}").forEach(elem => {
+            elem.style.cssText="display: none !important;"
+          })`
+        });
+      }
     },
     blockWebsites: function() {}
   }
