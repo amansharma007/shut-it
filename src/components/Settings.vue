@@ -5,9 +5,9 @@
       <p
         class="text-gray mt-0"
       >These websites will be fully blocked, and not just some section of it.</p>
-      <el-row class="mb-small" v-for="(website, index) in blockedWebsites" :key="index + website">
+      <el-row class="mb-small" v-for="(website, index) in options.blockedWebsites" :key="index + website">
         <el-col :span="18">
-          <el-input v-model="blockedWebsites[index]" size="small" placeholder="Enter website url"></el-input>
+          <el-input v-model="options.blockedWebsites[index]" size="small" placeholder="Enter website url"></el-input>
         </el-col>
         <el-col :span="6">
           <el-button
@@ -23,8 +23,8 @@
       <p
         class="text-gray mt-0 mb-medium"
       >You can select presets which will allow you to block certain sections of a website.</p>
-      <el-row class="mb-small" v-for="(website, index) in presets" :key="index + website.url">
-        <el-checkbox>{{ website.name }}</el-checkbox>
+      <el-row class="mb-small" v-for="(preset, index) in options.presets" :key="index + preset.url">
+        <el-checkbox @change="handlePresetSelect()" v-model="preset.selected">{{ preset.name }}</el-checkbox>
       </el-row>
 
       <el-row class="mb-small">
@@ -70,48 +70,61 @@
 export default {
   data: function() {
     return {
+      options: {
+        blockedWebsites: ["https://www.facebook.com/"],
+        presets: [
+          {
+            name: "YouTube",
+            url: "https://www.youtube.com/",
+            selectors: ["#contents"],
+            selected: false
+          },
+          {
+            name: "Reddit",
+            url: "https://www.reddit.com/",
+            selectors: ["body"],
+            selected: false
+          }
+        ]
+      },
       dialogFormVisible: false,
-      blockedWebsites: [
-        "https://www.facebook.com/"
-      ],
       newSelectorsString: "",
+      dataLoaded: false,
       newPreset: {
         name: "",
         url: "",
         selectors: [],
         selected: false
-      },
-      presets: [
-        {
-          name: "YouTube",
-          url: "https://www.youtube.com/",
-          selectors: ["#contents"],
-          selected: false
-        },
-        {
-          name: "Reddit",
-          url: "https://www.reddit.com/",
-          selectors: ["body"],
-          selected: false
-        }
-      ]
+      }
     };
   },
-  mounted() {
+  created() {
+    chrome.storage.sync.get(["options"], result => {
+      if (result.options) {
+        this.$set(this.options, "presets", result.options.presets);
+        console.log(JSON.stringify(this.options));
+      }
+    });
     this.addEmptyURLField();
   },
   watch: {
     newSelectorsString: function(newVal) {
-      this.newPreset.selectors = newVal.split("\n")
+      this.newPreset.selectors = newVal.split("\n");
     }
   },
   methods: {
+    handlePresetSelect: function() {
+      let self = this;
+      chrome.storage.sync.set({ options: { presets: self.options.presets } }, () => {
+        console.log("Value is set to " + JSON.stringify(this.options.presets));
+      });
+    },
     addEmptyURLField: function() {
-      this.blockedWebsites.push("");
+      this.options.blockedWebsites.push("");
     },
     addNewPreset: function() {
-      this.presets.push(this.newPreset);
-      this.dialogFormVisible = false
+      this.options.presets.push(this.newPreset);
+      this.dialogFormVisible = false;
     }
   }
 };

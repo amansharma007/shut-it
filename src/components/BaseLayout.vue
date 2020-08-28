@@ -1,6 +1,7 @@
 <template>
   <el-container>
     <el-main>
+      {{result}}
       <h1>SHUT IT!</h1>
       <el-radio-group class="mb-medium" v-model="mode" size="small" :stretch="true">
         <el-radio-button label="focus">Focus</el-radio-button>
@@ -19,11 +20,19 @@
 export default {
   data: function() {
     return {
-      mode: "off"
+      mode: "off",
+      result: {
+        options: null
+      }
     };
   },
   created() {
-    this.runScript()
+    // this.runScript();
+    chrome.storage.sync.get(["options"], (result) => {
+      // this.result = result
+      this.$set(this.result, "options", result.options)
+      console.log(JSON.stringify(result));
+    });
   },
   methods: {
     runScript: function() {
