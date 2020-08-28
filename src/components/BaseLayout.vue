@@ -41,11 +41,6 @@ export default {
       );
     });
   },
-  computed: {
-    currentHostName: function() {
-      return domain;
-    }
-  },
   methods: {
     handleModeChange: function() {
       switch (this.userMode) {
