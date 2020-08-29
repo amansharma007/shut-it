@@ -72,7 +72,10 @@ export default {
       chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
         domain = new URL(tabs[0].url).hostname;
         this.options.presets.map(elem => {
-          if (elem.url.includes(domain) && elem.selected) {
+          if (
+            (elem.url.includes(domain) || domain.includes(elem.url)) &&
+            elem.selected
+          ) {
             elem.selectors.map(selector => {
               chrome.tabs.executeScript({
                 code: `document.querySelectorAll("${selector}").forEach(elem => {
@@ -122,7 +125,7 @@ export default {
       chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
         domain = new URL(tabs[0].url).hostname;
         this.options.blockedWebsites.map(url => {
-          if (url.includes(domain) || domain.includes(url)) {
+          if ((url.includes(domain) || domain.includes(url)) && url) {
             chrome.tabs.executeScript({
               code: `document.querySelector("body").style.cssText="display: none !important;"`
             });

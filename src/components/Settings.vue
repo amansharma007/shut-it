@@ -5,7 +5,7 @@
       <p
         class="text-gray mt-0"
       >These websites will be fully blocked, and not just some section of it.</p>
-      <el-row class="mb-small" v-for="(website, index) in options.blockedWebsites">
+      <el-row class="mb-small" v-for="(website, index) in options.blockedWebsites" :key="index*1024">
         <el-col :span="18">
           <el-input
             v-model="options.blockedWebsites[index]"
@@ -27,7 +27,7 @@
       <p
         class="text-gray mt-0 mb-medium"
       >You can select presets which will allow you to block certain sections of a website.</p>
-      <el-row class="mb-small" v-for="(preset, index) in options.presets">
+      <el-row class="mb-small" v-for="(preset, index) in options.presets" :key="index*1996">
         <el-checkbox @change="handlePresetSelect()" v-model="preset.selected">{{ preset.name }}</el-checkbox>
       </el-row>
 
@@ -86,7 +86,7 @@ export default {
           {
             name: "Reddit",
             url: "https://www.reddit.com/",
-            selectors: ["body"],
+            selectors: ["div"],
             selected: false
           }
         ]
