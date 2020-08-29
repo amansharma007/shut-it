@@ -12,10 +12,6 @@
         <el-radio-button label="cautious">Cautious</el-radio-button>
         <el-radio-button label="off">Off</el-radio-button>
       </el-radio-group>
-      <!-- <el-tabs type="card" :stretch="true">
-        <el-tab-pane label="Dashboard">Dashboard</el-tab-pane>
-        <el-tab-pane label="Help">Help</el-tab-pane>
-      </el-tabs>-->
     </el-main>
   </el-container>
 </template>
@@ -86,6 +82,14 @@ export default {
             });
           }
         });
+
+        this.options.blockedWebsites.map(url => {
+          if (url.includes(domain) || domain.includes(url)) {
+            chrome.tabs.executeScript({
+              code: `document.querySelector("body").style.cssText=""`
+            });
+          }
+        });
       });
     },
     hideWebsiteSections: function() {
@@ -97,7 +101,6 @@ export default {
             (elem.url.includes(domain) || domain.includes(elem.url)) &&
             elem.selected
           ) {
-            console.log(elem);
             elem.selectors.map(selector => {
               this.hidingScript(selector);
             });
@@ -114,7 +117,19 @@ export default {
         });
       }
     },
-    blockWebsites: function() {}
+    blockWebsites: function() {
+      let domain = "";
+      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+        domain = new URL(tabs[0].url).hostname;
+        this.options.blockedWebsites.map(url => {
+          if (url.includes(domain) || domain.includes(url)) {
+            chrome.tabs.executeScript({
+              code: `document.querySelector("body").style.cssText="display: none !important;"`
+            });
+          }
+        });
+      });
+    }
   }
 };
 </script>

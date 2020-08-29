@@ -5,13 +5,17 @@
       <p
         class="text-gray mt-0"
       >These websites will be fully blocked, and not just some section of it.</p>
-      <el-row class="mb-small" v-for="(website, index) in options.blockedWebsites" :key="index + website">
+      <el-row class="mb-small" v-for="(website, index) in options.blockedWebsites">
         <el-col :span="18">
-          <el-input v-model="options.blockedWebsites[index]" size="small" placeholder="Enter website url"></el-input>
+          <el-input
+            v-model="options.blockedWebsites[index]"
+            size="small"
+            placeholder="Enter website url"
+          ></el-input>
         </el-col>
         <el-col :span="6">
           <el-button
-            @click="addEmptyURLField()"
+            @click="addWebsiteToBlock()"
             type="primary"
             size="small"
             style="margin-left: 10px"
@@ -23,7 +27,7 @@
       <p
         class="text-gray mt-0 mb-medium"
       >You can select presets which will allow you to block certain sections of a website.</p>
-      <el-row class="mb-small" v-for="(preset, index) in options.presets" :key="index + preset.url">
+      <el-row class="mb-small" v-for="(preset, index) in options.presets">
         <el-checkbox @change="handlePresetSelect()" v-model="preset.selected">{{ preset.name }}</el-checkbox>
       </el-row>
 
@@ -100,11 +104,18 @@ export default {
   },
   created() {
     chrome.storage.sync.get(["options"], result => {
-      if (result.options) {
+      if (result.options.presets && result.options.presets.length) {
         this.$set(this.options, "presets", result.options.presets);
       }
+      if (result.options.blockedWebsites && result.options.blockedWebsites.length) {
+        this.$set(
+          this.options,
+          "blockedWebsites",
+          result.options.blockedWebsites
+        );
+        this.addEmptyURLField();
+      }
     });
-    this.addEmptyURLField();
   },
   watch: {
     newSelectorsString: function(newVal) {
@@ -112,9 +123,14 @@ export default {
     }
   },
   methods: {
+    addWebsiteToBlock: function() {
+      let self = this;
+      chrome.storage.sync.set({ options: { presets: self.options.presets, blockedWebsites: self.options.blockedWebsites } });
+      this.addEmptyURLField()
+    },
     handlePresetSelect: function() {
       let self = this;
-      chrome.storage.sync.set({ options: { presets: self.options.presets } });
+      chrome.storage.sync.set({ options: { presets: self.options.presets, blockedWebsites: self.options.blockedWebsites } });
     },
     addEmptyURLField: function() {
       this.options.blockedWebsites.push("");
